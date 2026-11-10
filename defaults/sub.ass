@@ -1,0 +1,37 @@
+[Script Info]
+ScriptType: v4.00+
+PlayResX: 1080
+PlayResY: 1920
+WrapStyle: 2
+ScaledBorderAndShadow: yes
+YCbCr Matrix: TV.709
+
+[V4+ Styles]
+Format: Name, Fontname, Fontsize, PrimaryColour, SecondaryColour, OutlineColour, BackColour, Bold, Italic, Underline, StrikeOut, ScaleX, ScaleY, Spacing, Angle, BorderStyle, Outline, Shadow, Alignment, MarginL, MarginR, MarginV, Encoding
+Style: Def,Microsoft YaHei,78,&H00FFFFFF,&H00FFFFFF,&H000F0F0F,&H8C000000,-1,0,0,0,100,100,1,0,1,6,0,2,60,60,720,1
+
+[Events]
+Format: Layer, Start, End, Style, Name, MarginL, MarginR, MarginV, Effect, Text
+Dialogue: 0,0:00:00.00,0:00:01.37,Def,,0,0,0,,{\fad(45,45)\fscx105\fscy105\t(0,300,\fscx100\fscy100)}这是很多萤石矿老板
+Dialogue: 0,0:00:01.37,0:00:02.28,Def,,0,0,0,,{\fad(45,45)\fscx105\fscy105\t(0,300,\fscx100\fscy100)}刀架在脖子上
+Dialogue: 0,0:00:02.28,0:00:03.50,Def,,0,0,0,,{\fad(45,45)\fscx105\fscy105\t(0,300,\fscx100\fscy100)}也不愿意说的秘密
+Dialogue: 0,0:00:03.50,0:00:04.68,Def,,0,0,0,,{\fad(45,45)\fscx105\fscy105\t(0,300,\fscx100\fscy100)}你不会还傻傻的
+Dialogue: 0,0:00:04.68,0:00:06.20,Def,,0,0,0,,{\fad(45,45)\fscx105\fscy105\t(0,300,\fscx100\fscy100)}只盯着那点萤石砂吧
+Dialogue: 0,0:00:06.20,0:00:07.80,Def,,0,0,0,,{\fad(45,45)\fscx105\fscy105\t(0,300,\fscx100\fscy100)}其实那些藏在萤石里的
+Dialogue: 0,0:00:07.80,0:00:09.40,Def,,0,0,0,,{\fad(45,45)\fscx105\fscy105\t(0,300,\fscx100\fscy100)}金和钨才是真正的大头
+Dialogue: 0,0:00:09.40,0:00:10.50,Def,,0,0,0,,{\fad(45,45)\fscx105\fscy105\t(0,300,\fscx100\fscy100)}当初安徽张老板
+Dialogue: 0,0:00:10.50,0:00:11.76,Def,,0,0,0,,{\fad(45,45)\fscx105\fscy105\t(0,300,\fscx100\fscy100)}就是靠这一信息差
+Dialogue: 0,0:00:11.76,0:00:12.70,Def,,0,0,0,,{\fad(45,45)\fscx105\fscy105\t(0,300,\fscx100\fscy100)}赚得盆满钵满
+Dialogue: 0,0:00:12.70,0:00:13.96,Def,,0,0,0,,{\fad(45,45)\fscx105\fscy105\t(0,300,\fscx100\fscy100)}他将收来的萤石矿
+Dialogue: 0,0:00:13.96,0:00:15.22,Def,,0,0,0,,{\fad(45,45)\fscx105\fscy105\t(0,300,\fscx100\fscy100)}全部放进电磁窑内
+Dialogue: 0,0:00:15.22,0:00:16.80,Def,,0,0,0,,{\fad(45,45)\fscx105\fscy105\t(0,300,\fscx100\fscy100)}在850度密闭煅烧下
+Dialogue: 0,0:00:16.80,0:00:17.79,Def,,0,0,0,,{\fad(45,45)\fscx105\fscy105\t(0,300,\fscx100\fscy100)}获得萤石精矿
+Dialogue: 0,0:00:17.79,0:00:19.44,Def,,0,0,0,,{\fad(45,45)\fscx105\fscy105\t(0,300,\fscx100\fscy100)}把矿石里的硫砷等杂质
+Dialogue: 0,0:00:19.44,0:00:20.10,Def,,0,0,0,,{\fad(45,45)\fscx105\fscy105\t(0,300,\fscx100\fscy100)}气化分离
+Dialogue: 0,0:00:20.10,0:00:21.73,Def,,0,0,0,,{\fad(45,45)\fscx105\fscy105\t(0,300,\fscx100\fscy100)}让金钨直接裸露出来
+Dialogue: 0,0:00:21.73,0:00:23.73,Def,,0,0,0,,{\fad(45,45)\fscx105\fscy105\t(0,300,\fscx100\fscy100)}这样下来不仅金钨回收率
+Dialogue: 0,0:00:23.73,0:00:25.00,Def,,0,0,0,,{\fad(45,45)\fscx105\fscy105\t(0,300,\fscx100\fscy100)}都在{\c&H0000D7FF&\fs97}85%{\r}以上
+Dialogue: 0,0:00:25.00,0:00:25.88,Def,,0,0,0,,{\fad(45,45)\fscx105\fscy105\t(0,300,\fscx100\fscy100)}萤石砂纯度
+Dialogue: 0,0:00:25.88,0:00:27.12,Def,,0,0,0,,{\fad(45,45)\fscx105\fscy105\t(0,300,\fscx100\fscy100)}更是直达4N级
+Dialogue: 0,0:00:27.12,0:00:28.36,Def,,0,0,0,,{\fad(45,45)\fscx105\fscy105\t(0,300,\fscx100\fscy100)}轻松日产{\c&H0000D7FF&\fs97}300吨{\r}
+Dialogue: 0,0:00:28.36,0:00:29.52,Def,,0,0,0,,{\fad(45,45)\fscx105\fscy105\t(0,300,\fscx100\fscy100)}妥妥的信息差红利
