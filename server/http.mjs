@@ -813,7 +813,12 @@ export function serveFile(req, res, file, opt = {}){
   const headers = {
     "Content-Type": type,
     "Accept-Ranges": "bytes",
-    "Cache-Control": ext === ".html" ? "no-cache" : "private, max-age=60"
+    // 网页与前端脚本一律不缓存：改完代码刷新即生效。
+    // 之前 .js 是 max-age=60，浏览器会拿旧 projects.js 配新 index.html，
+    // 表单状态被两套逻辑来回写，表现就是「项目之间缓存混在一起」。
+    "Cache-Control": [".html", ".js", ".mjs", ".css"].includes(ext)
+      ? "no-store"
+      : "private, max-age=60"
   };
   if (opt.download){
     headers["Content-Disposition"] = `attachment; filename*=UTF-8''${encodeURIComponent(path.basename(file))}`;
