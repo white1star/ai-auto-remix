@@ -118,9 +118,9 @@
   function readStore(key){
     try {
       const s = JSON.parse(localStorage.getItem(key) || "null");
-      if (s && Array.isArray(s.list)) return { list: s.list, activeId: s.activeId || "", data: s.data || {} };
+      if (s && Array.isArray(s.list)) return { list: s.list, activeId: s.activeId || "", data: s.data || {}, v: s.v || 1 };
     } catch(e){}
-    return { list: [], activeId: "", data: {} };
+    return { list: [], activeId: "", data: {}, v: 2 };
   }
   function writeStore(){
     if (!store || !storeKey) return;
@@ -146,8 +146,11 @@
     if (!d) return;
     for (const id of TEXT_IDS){
       const x = el(id);
-      if (!x || d[id] === undefined) continue;
-      let v = d[id];
+      if (!x) continue;
+      // 每个字段都必须给一个确定值。旧项目数据缺字段时若直接 continue，
+      // afterLogin() 从浏览器级 localStorage 回填的旧值就会留在表单里，
+      // 这正是「项目之间缓存混在一起」的根因。
+      let v = d[id] ?? TEXT_DEFAULTS[id] ?? "";
       // 旧版本项目里存的是空值（系统音色默认项），升级后让它默认走云端。
       // 现在云健有显式 value，用户主动选它不会被这里改掉。
       if (id === "voicePick" && !v && CLOUD?.ready && CLOUD.defaultVoice
@@ -157,7 +160,10 @@
       if (id === "voicePick" && x.value !== v && CLOUD?.ready && CLOUD.defaultVoice)
         x.value = "cloud:" + CLOUD.defaultVoice;
     }
-    for (const id of CHECK_IDS){ const x = el(id); if (x && d[id] !== undefined) x.checked = !!d[id]; }
+    for (const id of CHECK_IDS){
+      const x = el(id);
+      if (x) x.checked = d[id] ?? CHECK_DEFAULTS[id] ?? false;
+    }
     if (typeof saveFx === "function") saveFx();   // 刷新页面后特效开关也跟项目一致
     const more = el("moreSettings");
     if (more) more.open = !!d.moreOpen;
@@ -238,6 +244,48 @@
     renderProjects();
   }
 
+  /* 新建项目后的硬清零：逐个把界面设回初始态，不依赖 apply() 里任何
+     条件分支，也不依赖 renderMats()/resetResult() 是否被调用成功。
+     这样即使某个原生异步回调晚到，界面也不会再显示上一个项目的残留。 */
+  function resetWorkspace(){
+    // 1 素材墙、计数、路径提示
+    if (typeof S !== "undefined") S.mats = [];
+    if (typeof renderMats === "function") renderMats();
+    const grid = el("matGrid");
+    if (grid) grid.innerHTML = '<div class="rail-empty" style="grid-column:1/-1">还没有素材<br>在上面填素材路径</div>';
+    const cnt = el("matCount"); if (cnt) cnt.textContent = "0";
+    const rft = el("railFootText"); if (rft) rft.textContent = "未选择素材";
+    const selAll = el("btnSelAll"); if (selAll) selAll.textContent = "全选";
+    const srcDir = el("srcDir"); if (srcDir) srcDir.value = "";
+    if (typeof hint === "function") hint("填本机文件夹路径，直接读，不用上传", true);
+
+    // 2 音色（下拉必须有个值，所以「清零」= 回默认音色）、语速
+    const vp = el("voicePick");
+    if (vp){
+      const want = defaultVoice();
+      vp.value = want;
+      if (vp.value !== want) vp.value = "zh-CN-YunjianNeural";
+    }
+    const sp = el("speed"); if (sp) sp.value = "100";
+    const sv = el("speedVal"); if (sv) sv.textContent = "1.00×";
+
+    // 3 预览 / 成片结果
+    if (typeof resetResult === "function") resetResult();
+
+    // 4 参考视频、封面、两种试听
+    if (typeof showRef === "function") showRef(null);
+    if (typeof clearCover === "function") clearCover();
+    if (typeof clearAudioPreview === "function") clearAudioPreview();
+    const a = el("cloudPreviewAudio");
+    if (a){ a.pause(); a.removeAttribute("src"); a.load(); }
+    const ts = el("tryState"); if (ts) ts.textContent = "用当前音色和语速念第一句文案";
+    const tb = el("btnVoiceTry"); if (tb) tb.textContent = "▶ 效果试听";
+
+    // 5 上面可能触发过同步，最后再压一次，别让旧计数回来
+    if (cnt) cnt.textContent = "0";
+    if (typeof syncFoot === "function") syncFoot();
+  }
+
   function createProject(name){
     saveCurrent();
     const p = { id: newId(), name: name || ("项目 " + (store.list.length + 1)), at: stamp() };
@@ -246,16 +294,7 @@
     store.activeId = p.id;
     writeStore();
     apply(store.data[p.id]);
-    // 这些不属于表单值，得单独清：上传的封面、音频试听、云端试听、素材提示
-    if (typeof clearCover === "function") clearCover();
-    if (typeof clearAudioPreview === "function") clearAudioPreview();
-    const a = el("cloudPreviewAudio");
-    if (a){ a.pause(); a.removeAttribute("src"); a.load(); }
-    const ts = el("tryState");
-    if (ts) ts.textContent = "用当前音色和语速念第一句文案";
-    const tb = el("btnVoiceTry");
-    if (tb) tb.textContent = "▶ 效果试听";
-    if (typeof hint === "function") hint("填本机文件夹路径，直接读，不用上传", true);
+    resetWorkspace();
     renderProjects();
     const inp = el("projName");
     if (inp) inp.value = "";
@@ -316,6 +355,20 @@
       store.list = [p];
       store.activeId = p.id;
       store.data[p.id] = capture();   // 老版本留在页面上的内容不丢
+    }
+    // v1 数据是旧版「沿用上一个项目」建出来的空项目，里面还存着上一个项目
+    // 的音色 / 路径。只按 store 版本号判断，别依赖 mats 字段是否存在——
+    // beforeunload 的 capture() 会把它补上，条件写窄了旧数据就漏迁移。
+    // 只清「文案标题都空」的项目，只迁移一次，不碰已经写了内容的项目。
+    if ((store.v || 1) < 2){
+      for (const p of store.list){
+        const d = store.data[p.id];
+        if (d && !d.script && !d.title){
+          store.data[p.id] = Object.assign({}, d, blankFrom());
+        }
+      }
+      store.v = 2;
+      writeStore();
     }
     if (!store.list.some(p => p.id === store.activeId)) store.activeId = store.list[0].id;
     if (!store.data[store.activeId]) store.data[store.activeId] = capture();
