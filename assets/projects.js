@@ -71,7 +71,6 @@
         st.textContent = r.ready
           ? (r.provider === "volc" ? "● 云端配音已就绪 · 火山豆包 2.0" : "● 免费音色已就绪")
           : "● 云端配音未配置";
-        if (r.locked) st.textContent += " · 已绑定原片复刻音色";
       }
     } catch(e){
       const hint = el("voicePickHint");
@@ -120,7 +119,7 @@
       const s = JSON.parse(localStorage.getItem(key) || "null");
       if (s && Array.isArray(s.list)) return { list: s.list, activeId: s.activeId || "", data: s.data || {}, v: s.v || 1 };
     } catch(e){}
-    return { list: [], activeId: "", data: {}, v: 2 };
+    return { list: [], activeId: "", data: {}, v: 3 };
   }
   function writeStore(){
     if (!store || !storeKey) return;
@@ -133,10 +132,9 @@
     for (const id of CHECK_IDS){ const x = el(id); if (x) d[id] = !!x.checked; }
     d.refVideo = (typeof S !== "undefined" && S.refVideo) || "";
     d.moreOpen = !!el("moreSettings")?.open;
-    // 素材墙、预览、成片结果也按项目隔离：切回来能恢复，新建的空项目则全部清掉
-    d.mats = (typeof S !== "undefined" ? (S.mats || []) : []).map(m => ({
-      path: m.path, name: m.name, kind: m.kind, size: m.size, sel: !!m.sel, up: !!m.up
-    }));
+    // 素材是本机路径，绝不写进项目存档。旧版本把上一次的素材列表存进项目，
+    // 切项目/刷新时又恢复成 S.mats，结果就是「素材墙是空的，计数却显示 16 个素材」。
+    d.mats = [];
     try { d.job = S.job ? JSON.parse(JSON.stringify(S.job)) : null; } catch(e){ d.job = null; }
     d.generated = !!(typeof S !== "undefined" && S.generated);
     return d;
@@ -183,11 +181,13 @@
     if (typeof showRef === "function") showRef(d.refVideo ? { path: d.refVideo, name: "参考视频" } : null);
     if (typeof S !== "undefined") S.refVideo = d.refVideo || "";
 
-    // 素材墙 + 预览 + 成片结果：有就恢复，没有就清回初始态（新建项目走这条）
-    if (typeof S !== "undefined"){
-      S.mats = (d.mats || []).map(m => ({ ...m }));
-      if (typeof renderMats === "function") renderMats();
-    }
+    // 素材不跟项目走：上传素材是账号级的（服务端 assets 表按 user_id 存），
+    // 本机目录素材也要按当前实际读到的算。所以这里两件事都不做：
+    //   1) 不从项目存档恢复旧 mats（旧存档里的路径多半早已失效）；
+    //   2) 也不清空 S.mats / 不把计数硬压成 0 —— 那会把 loadMaterials()
+    //      刚从服务端读到的真实素材一起抹掉，结果就是「素材墙空白、计数 0，
+    //      提示却写着已有 16 个上传素材」。
+    // 素材墙统一由 loadMaterials() → renderMats() 维护，这里只保证不串项目。
     if (d.job && d.generated && typeof onDone === "function") onDone(d.job, true, true);
     else if (typeof resetResult === "function") resetResult();
 
@@ -241,6 +241,9 @@
     store.activeId = id;
     writeStore();
     apply(store.data[id]);
+    // 素材必须按「这个项目自己的路径」重读，不能把上一个项目读到的素材带过来。
+    // srcDir 本来就是项目级字段：哪个项目填了路径就读哪个目录，没填就是空素材墙。
+    if (typeof loadMaterials === "function") loadMaterials();
     renderProjects();
   }
 
@@ -248,7 +251,9 @@
      条件分支，也不依赖 renderMats()/resetResult() 是否被调用成功。
      这样即使某个原生异步回调晚到，界面也不会再显示上一个项目的残留。 */
   function resetWorkspace(){
-    // 1 素材墙、计数、路径提示
+    // 1 素材：按用户要求「新建项目连素材一起清空」——这里明确清空素材墙和计数。
+    //   只清界面上的这一份选择，不动服务端已上传的文件：点「读取」或重新打开页面还能再拉回来。
+    //   注意不要再调 loadMaterials()，否则刚清空又被读回去。
     if (typeof S !== "undefined") S.mats = [];
     if (typeof renderMats === "function") renderMats();
     const grid = el("matGrid");
@@ -281,8 +286,8 @@
     const ts = el("tryState"); if (ts) ts.textContent = "用当前音色和语速念第一句文案";
     const tb = el("btnVoiceTry"); if (tb) tb.textContent = "▶ 效果试听";
 
-    // 5 上面可能触发过同步，最后再压一次，别让旧计数回来
-    if (cnt) cnt.textContent = "0";
+    // 5 计数与底栏交给 loadMaterials()/renderMats() 维护，这里不再硬写 0，
+    //   否则会把刚拉回来的真实素材数量又盖掉。
     if (typeof syncFoot === "function") syncFoot();
   }
 
@@ -320,6 +325,10 @@
   }
 
   function bindProjectUI(){
+    // DOM 只有这一份，绑定必须幂等。afterLogin / initProjects 可能被执行多次，
+    // 重复 addEventListener 会让「点一次新建」建出两个项目。
+    if (bindProjectUI.__bound) return;
+    bindProjectUI.__bound = true;
     const newBtn = el("btnNewProj"), nameInput = el("projName"), list = el("projList");
     if (newBtn) newBtn.addEventListener("click", () => createProject((nameInput?.value || "").trim()));
     if (nameInput) nameInput.addEventListener("keydown", e => {
@@ -370,10 +379,24 @@
       store.v = 2;
       writeStore();
     }
+    // v3：把旧存档里的 mats 全部清掉。旧版把素材路径存进项目，路径早就失效了，
+    // 恢复出来只会让「素材墙空白、计数却显示 16 个素材」。只清这一个字段，
+    // 文案、标题、音色、语速、设置一概不动，用户已经写的内容不丢。
+    if ((store.v || 1) < 3){
+      for (const p of store.list){
+        const d = store.data[p.id];
+        if (d) d.mats = [];
+      }
+      store.v = 3;
+      writeStore();
+    }
     if (!store.list.some(p => p.id === store.activeId)) store.activeId = store.list[0].id;
     if (!store.data[store.activeId]) store.data[store.activeId] = capture();
     renderProjects();
     apply(store.data[store.activeId]);
+    // 页面加载 / 登录后也按当前项目的 srcDir 重读一次素材，
+    // 否则会沿用浏览器级 localStorage 里别的项目留下的路径。
+    if (typeof loadMaterials === "function") loadMaterials();
     if (initedFor !== who){ bindProjectUI(); initedFor = who; }
   }
 

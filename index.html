@@ -473,13 +473,6 @@ details.adv>summary:hover{color:var(--text-2)}
 .jrow b{font-size:12px;display:block;font-variant-numeric:tabular-nums;font-weight:500}
 .jrow small{font-size:10.5px;color:var(--text-3)}
 .jrow .go{font-size:11px;color:var(--text-3)}
-.history-load{display:flex;align-items:center;gap:10px;flex:1;min-width:0;text-align:left;background:none;border:0;color:inherit;padding:0;cursor:pointer}
-.history-load b{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
-.history-delete{flex:none;border:0;background:none;color:var(--text-3);font-size:11px;padding:5px 7px;border-radius:5px}
-.history-delete:hover:not(:disabled){background:rgba(255,111,111,.12);color:var(--err)}
-.history-delete:disabled{opacity:.4;cursor:not-allowed}
-.history-delete-name{padding:10px 12px;border:1px solid var(--line);border-radius:8px;overflow-wrap:anywhere;font-weight:600;font-size:13px}
-.btn.delete-confirm{background:var(--err);color:#fff}
 
 /* ================= 响应式 ================= */
 @media(max-width:1180px){
@@ -560,7 +553,7 @@ details.adv>summary:hover{color:var(--text-2)}
   .proj-list{grid-template-columns:repeat(auto-fill,minmax(150px,1fr))}
 }
 </style>
-<link rel="stylesheet" href="/assets/assistant-ui.css?v=20261110-cloud5">
+<link rel="stylesheet" href="/assets/assistant-ui.css?v=20261110-cloud13">
 </head>
 <body>
 <div class="app">
@@ -572,7 +565,6 @@ details.adv>summary:hover{color:var(--text-2)}
     </div>
     <div class="spacer"></div>
     <span class="status" id="svcBadge"><i></i>检测中</span>
-    <button class="ghost-btn" id="btnHistory" title="历史作品">历史</button>
     <button class="ghost-btn" id="userChip" title="账号">未登录</button>
     <button class="icon-btn" id="themeBtn" title="切换深浅色" aria-label="切换深浅色">
       <svg class="ic-sun" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"><circle cx="8" cy="8" r="3.2"/><path d="M8 1v1.6M8 13.4V15M1 8h1.6M13.4 8H15M3.1 3.1l1.1 1.1M11.8 11.8l1.1 1.1M12.9 3.1l-1.1 1.1M4.2 11.8l-1.1 1.1"/></svg>
@@ -587,7 +579,6 @@ details.adv>summary:hover{color:var(--text-2)}
       <small id="umRole">—</small>
     </div>
     <button id="umSet">设置 <span class="spacer"></span></button>
-    <button id="umHistory">历史作品</button>
     <button id="umLogout" class="danger">退出登录</button>
   </div>
 
@@ -645,30 +636,6 @@ details.adv>summary:hover{color:var(--text-2)}
       <div class="sheet-foot">
         <button class="btn ghost" id="setRefresh">刷新</button>
         <button class="btn primary" id="setClose">关闭</button>
-      </div>
-    </div>
-  </div>
-
-  <!-- ============ 历史作品 ============ -->
-  <div class="mask" id="hsMask">
-    <div class="sheet" style="width:560px">
-      <h3>历史作品</h3>
-      <p class="sub">只显示你自己的任务。点一条即可载入预览与下载。</p>
-      <div id="hsList" style="max-height:52vh;overflow:auto"></div>
-      <div class="sheet-foot">
-        <button class="btn primary" id="hsClose">关闭</button>
-      </div>
-    </div>
-  </div>
-
-  <div class="mask" id="hsDeleteMask" role="dialog" aria-modal="true" aria-labelledby="hsDeleteTitle">
-    <div class="sheet" style="width:420px">
-      <h3 id="hsDeleteTitle">确认删除作品？</h3>
-      <p class="sub">再次点击“确认删除”后，这条历史记录和成片文件会永久删除。</p>
-      <div class="history-delete-name" id="hsDeleteName"></div>
-      <div class="sheet-foot">
-        <button class="btn ghost" id="hsDeleteCancel">取消</button>
-        <button class="btn delete-confirm" id="hsDeleteConfirm">确认删除</button>
       </div>
     </div>
   </div>
@@ -849,7 +816,7 @@ details.adv>summary:hover{color:var(--text-2)}
               <div class="more-block">
                 <label for="pathRun">成片保存位置</label>
                 <div class="audio-row"><input type="text" id="pathRun" placeholder="例：D:\交付\11月" spellcheck="false"><button class="mini" id="btnPickDir">选择</button></div><input type="text" id="pathLib" hidden readonly>
-                <div class="hint" id="pathOut">出片后这里显示实际路径；成片库里也留一份，随时能在「历史」找回。</div>
+                <div class="hint" id="pathOut">出片后这里显示实际路径。</div>
                 <div class="path-actions"><button class="link-btn" id="btnReveal" disabled>打开文件夹</button><button class="link-btn" data-copy="pathLib">复制路径</button></div>
               </div>
 
@@ -2112,16 +2079,15 @@ document.addEventListener("keydown", e => {
   closeMat();
   $("editMask").classList.remove("on");
   $("umenu").classList.remove("on");
-  ["setMask", "hsMask"].forEach(id => $(id).classList.remove("on"));
+  ["setMask"].forEach(id => $(id).classList.remove("on"));
 });
 
 $("matClose").addEventListener("click", closeMat);
 $("matMask").addEventListener("click", e => { if (e.target === $("matMask")) closeMat(); });
 
 /* =====================================================================
-   令牌 / 管理 / 历史
+   令牌 / 管理
    ===================================================================== */
-const fmtDate = ms => ms ? new Date(ms).toLocaleString("zh-CN", { month: "2-digit", day: "2-digit", hour: "2-digit", minute: "2-digit" }) : "—";
 
 /* ---------- 设置：账号 / 令牌 ---------- */
 // 两个页签共用一个弹层。以前账号管理挂在「管理员」名下、令牌单独一个弹层，
@@ -2195,23 +2161,8 @@ async function renderAccounts(){
   }
 }
 
-/* ---------- 历史作品 ---------- */
-$("btnHistory").addEventListener("click", openHistory);
-$("umHistory").addEventListener("click", () => { $("umenu").classList.remove("on"); openHistory(); });
-$("hsClose").addEventListener("click", () => $("hsMask").classList.remove("on"));
-$("hsMask").addEventListener("click", e => { if (e.target.id === "hsMask") $("hsMask").classList.remove("on"); });
-
-let historyDeleteTarget = null, historyDeleting = false;
-function closeHistoryDelete(){
-  if (historyDeleting) return;
-  historyDeleteTarget = null;
-  $("hsDeleteMask").classList.remove("on");
-}
-$("hsDeleteCancel").addEventListener("click", closeHistoryDelete);
-$("hsDeleteMask").addEventListener("click", e => { if (e.target.id === "hsDeleteMask") closeHistoryDelete(); });
-
-/* 把预览 / 成片结果清回「还没生成」的初始态。
-   历史删除和「新建项目」都会用，projects.js 也会在切到空项目时调用。 */
+/* ---------- 结果复位 ---------- */
+/* 「新建项目」会用，projects.js 也会在切到空项目时调用。 */
 function resetResult(){
   S.job = null; S.generated = false; S.confirmed = false;
   if (S.localVideo){ try { URL.revokeObjectURL(S.localVideo); } catch(e){} S.localVideo = null; }
@@ -2225,101 +2176,12 @@ function resetResult(){
   for (const name of ["dlVideo", "dlCover", "dlSrt"]){ $(name).href = "#"; $(name).classList.add("disabled"); }
   $("dlVideoSize").textContent = "—";
   $("pathLib").value = "";
-  $("pathOut").textContent = "出片后这里显示实际路径；成片库里也留一份，随时能在「历史」找回。";
+  $("pathOut").textContent = "出片后这里显示实际路径。";
   $("btnReveal").disabled = true;
   $("footRow").hidden = true;
   lockUI(false);
   setProgress(0, "等待生成");
   syncFoot();
-}
-
-function clearDeletedHistoryPreview(id){
-  if (S.job?.id !== id) return;
-  resetResult();
-}
-
-$("hsDeleteConfirm").addEventListener("click", async () => {
-  if (!historyDeleteTarget || historyDeleting) return;
-  const { id, title } = historyDeleteTarget;
-  historyDeleting = true;
-  $("hsDeleteConfirm").disabled = true;
-  $("hsDeleteCancel").disabled = true;
-  $("hsDeleteConfirm").textContent = "删除中…";
-  try {
-    await api("/api/job/" + encodeURIComponent(id), { method: "DELETE" });
-    clearDeletedHistoryPreview(id);
-    historyDeleteTarget = null;
-    $("hsDeleteMask").classList.remove("on");
-    await openHistory();
-    toast("已删除 " + title);
-  } catch(e){ toast("删除失败：" + e.message); }
-  finally {
-    historyDeleting = false;
-    $("hsDeleteConfirm").disabled = false;
-    $("hsDeleteCancel").disabled = false;
-    $("hsDeleteConfirm").textContent = "确认删除";
-  }
-});
-
-async function openHistory(){
-  $("hsMask").classList.add("on");
-  const box = $("hsList");
-  box.innerHTML = `<div class="jrow"><div class="grow"><small>加载中…</small></div></div>`;
-  try {
-    const { jobs } = await api("/api/jobs?limit=30");
-    if (!jobs.length){
-      box.innerHTML = `<div class="jrow"><div class="grow"><small>还没有生成过作品</small></div></div>`;
-      return;
-    }
-    const label = { done: ["on", "完成"], error: ["off", "失败"], running: ["", "进行中"] };
-    box.innerHTML = jobs.map(j => {
-      const st = label[j.status] || ["", j.status];
-      const m = j.meta || {};
-      return `<div class="jrow" data-id="${esc(j.id)}">
-        <button class="history-load" type="button" data-id="${esc(j.id)}" title="${esc(j.title)}">
-          <span class="grow">
-            <b>${esc(j.title)} <span class="badge ${st[0]}">${st[1]}</span></b>
-            <small>${fmtDate(j.created_at)}${m.dur ? " · " + m.dur + "s · " + m.shots + " 镜 · " + m.size + "MB" : ""}${j.origin === "mcp" ? " · 来自 MCP" : ""}${j.error ? " · " + esc(j.error).slice(0, 40) : ""}</small>
-          </span>
-          <span class="go">载入 →</span>
-        </button>
-        <button class="history-delete" type="button" data-id="${esc(j.id)}" aria-label="删除作品：${esc(j.title)}" ${j.status === "running" ? 'disabled title="生成中不可删除"' : ""}>删除</button>
-      </div>`;
-    }).join("");
-
-    box.querySelectorAll(".history-delete[data-id]").forEach(btn => btn.addEventListener("click", () => {
-      const job = jobs.find(j => j.id === btn.dataset.id);
-      if (!job || job.status === "running") return;
-      historyDeleteTarget = { id: job.id, title: job.title };
-      $("hsDeleteName").textContent = job.title;
-      $("hsDeleteMask").classList.add("on");
-      $("hsDeleteCancel").focus();
-    }));
-
-    box.querySelectorAll(".history-load[data-id]").forEach(row => row.addEventListener("click", async () => {
-      try {
-        const j = await api("/api/job/" + row.dataset.id);
-        $("hsMask").classList.remove("on");
-        if (j.status === "done"){
-          onDone(j, true);
-          const title = jobs.find(x => x.id === j.id)?.title || j.id;
-          logLine("载入历史作品 " + title, "ok");
-          toast("已载入 " + title);
-        } else if (j.status === "running"){
-          buildSegs();
-          Object.entries(j.stages || {}).forEach(([k, v]) => setSeg(k, v));
-          $("runOverlay").hidden = false;
-          toast("该任务仍在渲染，开始跟踪进度");
-          lockUI(true);
-          pollJob(j.id);
-        } else {
-          toast("该任务失败：" + (j.error || "未知原因"));
-        }
-      } catch(e){ toast(e.message); }
-    }));
-  } catch(e){
-    box.innerHTML = `<div class="jrow"><div class="grow"><small style="color:var(--err)">${esc(e.message)}</small></div></div>`;
-  }
 }
 
 /* =====================================================================
@@ -2379,7 +2241,7 @@ function applyDeployRole(cfg){
 })();
 </script>
 <script src="/assets/assistant-state.js"></script>
-<script src="/assets/assistant-ui.js?v=20261110-cloud5"></script>
-<script src="/assets/projects.js?v=20261110-cloud5"></script>
+<script src="/assets/assistant-ui.js?v=20261110-cloud13"></script>
+<script src="/assets/projects.js?v=20261110-cloud13"></script>
 </body>
 </html>
