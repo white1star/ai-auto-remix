@@ -1,0 +1,68 @@
+.production-panel .col-head{height:49px;padding:0 18px}
+.production-panel .col-head h2{font-size:16px;color:var(--text);letter-spacing:0}
+.production-body{padding:0 18px}
+.production-section{padding:20px 0;border-bottom:1px solid var(--line)}
+.production-section:last-child{border:0}
+.production-section h3,.section-line>label{font-size:14px;font-weight:600;line-height:1.4;color:var(--text)}
+.production-section h3{margin:0 0 13px}
+.section-line{display:flex;align-items:center;justify-content:space-between;margin-bottom:11px}
+.production-panel textarea,.production-panel input[type=text],.production-panel select{width:100%;padding:10px 11px;border-radius:7px;background:var(--panel-3);border:1px solid var(--line-2);color:var(--text);font-size:12px;line-height:1.6;min-width:0;outline:none}
+.production-panel textarea:focus,.production-panel input[type=text]:focus,.production-panel select:focus{border-color:var(--accent)}
+.production-panel textarea::placeholder,.production-panel input::placeholder{color:var(--text-3)}
+.production-panel textarea{display:block;min-height:112px;resize:vertical;max-height:300px}
+.production-panel .hint{font-size:11px;margin-top:7px}
+.reference-options{display:flex;gap:22px;flex-wrap:wrap;margin:13px 0 11px}
+.reference-options label,.cover-options label{display:flex;align-items:center;gap:7px;font-size:12px;cursor:pointer;white-space:nowrap}
+.production-panel input[type=checkbox],.production-panel input[type=radio]{width:15px;height:15px;accent-color:var(--accent);cursor:pointer}
+.production-panel details summary{display:flex;align-items:center;gap:9px;color:var(--text-2);font-size:11.5px;cursor:pointer;list-style:none;line-height:1.6}
+.production-panel details summary::-webkit-details-marker{display:none}
+.production-panel details summary::after{content:'';width:6px;height:6px;border-right:1.5px solid currentColor;border-bottom:1.5px solid currentColor;transform:rotate(45deg) translateY(-2px);transition:transform .15s}
+.production-panel details[open]>summary::after{transform:rotate(225deg) translate(-1px,-1px)}
+.detail-fields{display:grid;gap:8px;padding-top:12px}
+.detail-fields>label{font-size:11px;color:var(--text-2);margin-top:4px}
+.reference-generate{margin:15px 0 12px;background:var(--accent);color:#fff;font-size:12px;font-weight:600;height:36px;border:0;box-shadow:none}
+.reference-generate:disabled{opacity:.5;cursor:default}
+.production-panel #btnGenerateAudio[hidden]{display:none}
+.audio-results{border:1px solid var(--line-2);border-radius:7px;overflow:hidden}
+.audio-result{min-height:44px;display:flex;align-items:center;gap:12px;padding:8px 11px}
+.audio-result+.audio-result{border-top:1px solid var(--line-2)}
+.audio-result>span{font-size:12px;min-width:32px}
+.audio-result small{border-left:1px solid var(--line-2);padding-left:12px;color:var(--text-3);font-size:11px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.audio-play{display:grid;place-items:center;background:var(--panel-3);border:1px solid var(--line-2);border-radius:50%;width:25px;height:25px;flex:none;color:var(--text-2)}
+.audio-play svg{width:13px;height:13px}
+.audio-play:disabled{opacity:.45;cursor:default}
+.audio-play:not(:disabled):hover{background:var(--accent-soft);color:var(--accent)}
+.audio-play[data-playing="true"]{background:var(--accent-soft);border-color:var(--accent);color:var(--accent)}
+.audio-request-note{font-size:11px;line-height:1.7;margin:4px 0 9px;color:var(--text-2);overflow-wrap:anywhere}
+.audio-request-note.error{color:var(--err)}
+.audio-request-note.dirty{color:var(--warn)}
+.speed-control{display:grid;grid-template-columns:42px 59px 1fr;align-items:center;gap:10px;margin-bottom:15px}
+.speed-control label,.field-line>label,.cover-options>span{font-size:12px}
+.speed-control b{font-size:12px;font-weight:500;font-variant-numeric:tabular-nums}
+.production-panel input[type=range]{width:100%;min-width:0;accent-color:var(--accent)}
+.field-line{display:grid;grid-template-columns:74px minmax(0,1fr);align-items:center;gap:8px;margin-bottom:14px}
+.cover-options{display:flex;gap:17px;align-items:center;flex-wrap:wrap;margin-bottom:15px}
+.cover-options>span{min-width:57px}
+.production-panel .cover-drop{margin-bottom:14px}
+.production-panel .foot{padding:14px 18px 16px;background:var(--panel)}
+.production-panel .foot-line{min-height:19px;font-size:11px;margin-bottom:10px;color:var(--text-2)}
+.production-panel #btnRun{height:38px;font-size:13px;font-weight:600}
+.production-panel #btnRun:disabled{background:var(--panel-3);color:var(--text-3);border:1px solid var(--line-2);opacity:1;cursor:default}
+.assistant-connection{border-bottom:1px solid var(--line);padding-bottom:16px;margin-bottom:16px}
+.assistant-connection h4{font-size:14px;margin-bottom:8px}
+.assistant-connection p{color:var(--text-2);font-size:12px;line-height:1.7;margin-bottom:8px}
+.assistant-connection #connectPromptFallback{display:block;width:100%;min-height:110px;margin-top:10px;resize:vertical;font-size:11px}
+.assistant-connection #connectManual[hidden]{display:none}
+.assistant-connection #connectManual{margin-top:10px}
+.path-actions{display:flex;gap:3px;flex-wrap:wrap}
+.production-panel .audio-row select{padding:7px;min-width:0}
+@media(min-width:1181px){.work{grid-template-columns:186px 250px minmax(0,1fr) 390px}}
+@media(min-width:901px) and (max-width:1180px){.production-body{padding:0 14px}.production-panel .col-head,.production-panel .foot{padding-left:14px;padding-right:14px}.cover-options{gap:12px}}
+@media(max-width:900px){.app{grid-template-columns:minmax(0,1fr);grid-template-rows:auto minmax(0,1fr);min-width:0;width:100%}.appbar{flex-wrap:wrap;min-height:52px;padding-top:8px;padding-bottom:8px;min-width:0}.production-panel .col-head{height:52px}.production-section{padding:20px 0}.production-panel textarea{min-height:140px}.production-body{overflow:visible}.production-panel .foot{z-index:6}.production-panel .foot-row{gap:8px}}
+@media(prefers-reduced-motion:reduce){.production-panel *{transition:none!important}}
+
+/* 原来折在「更多剪辑设置」里的几行，现在直接摆在面板上，补回标签间距 */
+.production-section>label{display:block;font-size:11px;color:var(--text-2);margin:14px 0 5px}
+.production-section>.audio-row+.audio-row{margin-top:4px}
+.production-section>.hint.warn{color:#e0a33e}
+

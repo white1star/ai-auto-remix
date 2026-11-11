@@ -1,0 +1,42 @@
+# 用户数据 / 运行产物 —— 绝不入库
+/data/
+/runs/
+/output/
+*.db
+*.db-shm
+*.db-wal
+*.log
+*.err
+运行日志.txt*
+试听-*.wav
+对比-*.wav
+rhythm-report.json
+_*.py
+_*.mjs
+
+# 本机测试目录 / 缓存
+.edgetest/
+.leakprobe/
+.rhythm-test/
+.workbuddy/
+__pycache__/
+*.pyc
+.DS_Store
+Thumbs.db
+
+# 凭证与个人配置（模板已随仓库提供）
+配置.json
+.cloud-key.json
+cloud-key.json
+*.env
+.env.*
+
+# 大体积运行时：由「安装运行时.bat」下载，或去 Release 取完整包。
+# ffmpeg.exe / ffprobe.exe 单文件 >100MB，GitHub 普通提交会被拒。
+runtime/node.exe
+runtime/ffmpeg.exe
+runtime/ffprobe.exe
+/runtime/*.zip
+
+# 注意：runtime/edge-tts/ 是随仓库提交的（约 31MB，全是小文件），
+# 免费系统音色开箱可用，不要在这里排除。

@@ -1,0 +1,430 @@
+<!DOCTYPE html>
+<html lang="zh-CN" data-theme="dark">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>账号管理 · AI 自动混剪</title>
+<script>
+  try{
+    var t = localStorage.getItem("wb_theme");
+    if (t) document.documentElement.dataset.theme = t;
+  }catch(e){}
+</script>
+<style>
+:root[data-theme="dark"]{
+  --bg:#08090c; --panel:#0e1014; --panel-2:#13161b; --panel-3:#191d23;
+  --line:#1f2329; --line-2:#2b3038;
+  --text:#e9ecf1; --text-2:#98a0ac; --text-3:#646c79;
+  --accent:#7b8cff; --accent-soft:rgba(123,140,255,.13);
+  --ok:#3ddc97; --warn:#f2b33d; --err:#ff6f6f;
+  --btn-bg:#eef1f6; --btn-fg:#0a0c10;
+  --shadow:0 24px 60px -30px rgba(0,0,0,.9);
+}
+:root[data-theme="light"]{
+  --bg:#eef0f4; --panel:#fff; --panel-2:#f7f8fa; --panel-3:#eff1f5;
+  --line:#e3e6ec; --line-2:#d2d7e0;
+  --text:#0d1015; --text-2:#5d6675; --text-3:#8b95a4;
+  --accent:#3f57e0; --accent-soft:rgba(63,87,224,.10);
+  --ok:#0e9f6e; --warn:#a8700a; --err:#d64545;
+  --btn-bg:#111418; --btn-fg:#fff;
+  --shadow:0 20px 50px -30px rgba(15,23,42,.35);
+}
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+[hidden]{display:none !important}
+body{
+  background:var(--bg); color:var(--text); min-height:100vh;
+  font:400 13px/1.55 -apple-system,BlinkMacSystemFont,"Segoe UI","PingFang SC","Microsoft YaHei",system-ui,sans-serif;
+  -webkit-font-smoothing:antialiased;
+}
+button,input{font:inherit;color:inherit}
+button{background:none;border:none;cursor:pointer}
+::selection{background:var(--accent-soft)}
+:focus-visible{outline:2px solid var(--accent);outline-offset:1px;border-radius:4px}
+
+.bar{
+  height:52px;display:flex;align-items:center;gap:10px;padding:0 18px;
+  background:var(--panel);border-bottom:1px solid var(--line);position:sticky;top:0;z-index:10;
+}
+.brand{display:flex;align-items:center;gap:9px;font-size:13.5px;font-weight:600}
+.brand .mark{width:22px;height:22px;border-radius:6px;display:grid;place-items:center;background:var(--text);color:var(--panel)}
+.brand .mark svg{width:9px;height:9px}
+.brand small{font-weight:400;color:var(--text-3);font-size:11px;letter-spacing:.4px}
+.spacer{flex:1}
+.chip{font-size:11.5px;color:var(--text-2);padding:3px 9px;border-radius:99px;border:1px solid var(--line);white-space:nowrap}
+
+.wrap{max-width:960px;margin:0 auto;padding:24px 18px 60px;display:flex;flex-direction:column;gap:16px}
+.card{background:var(--panel);border:1px solid var(--line);border-radius:13px;padding:18px 20px}
+.card h2{font-size:13.5px;font-weight:600;display:flex;align-items:center;gap:9px}
+.card .sub{font-size:11.5px;color:var(--text-3);margin:5px 0 14px;line-height:1.7}
+.card .sub code{font-family:ui-monospace,Consolas,monospace;color:var(--text-2)}
+
+.btn{
+  display:inline-flex;align-items:center;justify-content:center;gap:6px;height:32px;padding:0 13px;
+  border-radius:8px;font-size:12.5px;font-weight:500;transition:.14s;border:1px solid transparent;white-space:nowrap;
+}
+.btn:disabled{opacity:.35;cursor:not-allowed}
+.btn.primary{background:var(--btn-bg);color:var(--btn-fg)}
+.btn.primary:hover:not(:disabled){filter:brightness(1.06)}
+.btn.ghost{background:var(--panel-2);border-color:var(--line);color:var(--text-2)}
+.btn.ghost:hover:not(:disabled){color:var(--text);border-color:var(--line-2)}
+.btn.block{width:100%;height:38px;font-size:13px;font-weight:600}
+.btn.sm{height:26px;padding:0 10px;font-size:11.5px;border-radius:6px}
+
+.field{margin-bottom:11px}
+.field label{display:block;font-size:11px;color:var(--text-3);margin-bottom:6px}
+.field input{width:100%;height:36px;padding:0 12px;border-radius:9px;border:1px solid var(--line);background:var(--panel-2);color:var(--text);font-size:13px;transition:.14s}
+.field input:focus{border-color:var(--accent);background:var(--panel);outline:none}
+.row{display:flex;gap:8px;align-items:flex-end}
+.row .field{flex:1;margin-bottom:0}
+
+.tk{display:flex;align-items:center;gap:10px;padding:9px 11px;border:1px solid var(--line);border-radius:9px;background:var(--panel-2);margin-bottom:7px}
+.tk .grow{flex:1;min-width:0}
+.tk b{font-size:12px;font-weight:500;display:block}
+.tk small{font-size:10.5px;color:var(--text-3);font-variant-numeric:tabular-nums}
+.badge{font-size:10px;padding:1px 6px;border-radius:5px;background:var(--panel-3);color:var(--text-3);white-space:nowrap}
+.badge.on{background:rgba(61,220,151,.12);color:var(--ok)}
+.badge.off{background:rgba(255,111,111,.12);color:var(--err)}
+.tkbox{margin-top:12px;padding:11px 12px;border-radius:9px;border:1px dashed var(--accent);background:var(--accent-soft)}
+.tkbox .cap{font-size:10.5px;color:var(--text-3);margin-bottom:5px}
+.tkbox code{display:block;font-size:11.5px;word-break:break-all;font-family:ui-monospace,Consolas,monospace;line-height:1.7}
+.tkbox .row2{display:flex;gap:6px;margin-top:8px}
+
+table{width:100%;border-collapse:collapse;font-size:11.5px}
+th{text-align:left;font-weight:500;color:var(--text-3);padding:6px 8px;border-bottom:1px solid var(--line);font-size:10.5px;letter-spacing:.4px}
+td{padding:8px;border-bottom:1px solid var(--line);vertical-align:middle}
+tr:last-child td{border-bottom:none}
+td .acts{display:flex;gap:5px;justify-content:flex-end}
+.tbl-wrap{max-height:52vh;overflow:auto}
+
+.gate{position:fixed;inset:0;z-index:50;background:var(--bg);display:grid;place-items:center;padding:24px}
+.gate-card{width:360px;max-width:100%;background:var(--panel);border:1px solid var(--line-2);border-radius:16px;padding:24px;box-shadow:var(--shadow)}
+.gate-brand{display:flex;align-items:center;gap:9px;font-size:14px;font-weight:600;margin-bottom:18px}
+.gate-brand .mark{width:24px;height:24px;border-radius:7px;display:grid;place-items:center;background:var(--text);color:var(--panel)}
+.gate-brand .mark svg{width:10px;height:10px}
+.gate-err{font-size:11.5px;color:var(--err);min-height:18px;margin:2px 0 8px}
+
+.toast{position:fixed;left:50%;top:62px;transform:translate(-50%,-8px);opacity:0;pointer-events:none;
+  background:var(--btn-bg);color:var(--btn-fg);padding:8px 15px;border-radius:8px;font-size:12px;
+  box-shadow:0 12px 30px -10px rgba(0,0,0,.6);transition:.2s;z-index:99}
+.toast.on{opacity:1;transform:translate(-50%,0)}
+
+@media(max-width:640px){
+  .bar{padding:0 12px}
+  .wrap{padding:16px 12px 40px}
+  .card{padding:14px}
+  td .acts{flex-direction:column;align-items:stretch}
+  .row{flex-direction:column;align-items:stretch}
+}
+</style>
+</head>
+<body>
+
+<div class="bar">
+  <div class="brand">
+    <span class="mark"><svg viewBox="0 0 16 16" fill="currentColor"><path d="M4 2.5v11l9-5.5-9-5.5z"/></svg></span>
+    账号管理 <small>AI 自动混剪</small>
+  </div>
+  <div class="spacer"></div>
+  <span class="chip" id="whoami">未登录</span>
+  <button class="btn ghost sm" id="btnTheme">深浅色</button>
+  <button class="btn ghost sm" id="btnOut" hidden>退出</button>
+</div>
+
+<div class="wrap" id="main" hidden>
+  <div class="card">
+    <h2>我的个人令牌</h2>
+    <p class="sub">
+      在员工电脑上打开 <code>connector/mcp.json</code>，把令牌填进
+      <code>Authorization: Bearer</code>，就能用 WorkBuddy 直接说「做条视频」。
+      令牌 90 天自动过期，可随时撤销，只在本账号名下的素材与作品上生效。
+    </p>
+    <div id="tkList"></div>
+    <div class="tkbox" id="tkNew" hidden>
+      <div class="cap">新令牌（只显示这一次，请立即复制）</div>
+      <code id="tkPlain"></code>
+      <div class="row2">
+        <button class="btn sm primary" id="tkCopy">复制</button>
+        <button class="btn sm ghost" id="tkHide">我已保存</button>
+      </div>
+    </div>
+    <div class="row" style="margin-top:14px">
+      <div class="field">
+        <label>令牌备注</label>
+        <input id="tkName" type="text" maxlength="40" value="我的电脑" placeholder="例如 工位电脑">
+      </div>
+      <button class="btn primary" id="tkCreate">生成新令牌</button>
+    </div>
+  </div>
+
+  <div class="card" id="adCard" hidden>
+    <h2>账号管理</h2>
+    <p class="sub" id="adSub">—</p>
+    <div class="tbl-wrap">
+      <table>
+        <thead><tr><th>账号</th><th>任务</th><th>令牌</th><th>最近登录</th><th style="text-align:right">操作</th></tr></thead>
+        <tbody id="adBody"></tbody>
+      </table>
+    </div>
+    <div style="margin-top:12px;display:flex;align-items:center;gap:10px;flex-wrap:wrap">
+      <button class="btn ghost sm" id="adRefresh">刷新</button>
+      <span style="flex:1"></span>
+      <span class="sub" id="regState" style="margin:0"></span>
+      <button class="btn ghost sm" id="regToggle">—</button>
+    </div>
+  </div>
+</div>
+
+<div class="gate" id="gate">
+  <div class="gate-card">
+    <div class="gate-brand">
+      <span class="mark"><svg viewBox="0 0 16 16" fill="currentColor"><path d="M4 2.5v11l9-5.5-9-5.5z"/></svg></span>
+      账号管理
+    </div>
+    <p class="sub" id="gateSub" style="font-size:11.5px;color:var(--text-3);margin-bottom:16px;line-height:1.7"></p>
+    <div class="field"><label>账号</label><input id="gUser" type="text" maxlength="64" autocomplete="username"></div>
+    <div class="field"><label>密码</label><input id="gPass" type="password" maxlength="128" autocomplete="current-password"></div>
+    <div class="field" id="gPass2Wrap" hidden><label>确认密码</label><input id="gPass2" type="password" maxlength="128"></div>
+    <div class="gate-err" id="gErr"></div>
+    <button class="btn primary block" id="gGo">登录</button>
+    <p style="font-size:11.5px;color:var(--text-3);margin-top:12px;text-align:center">
+      <a href="#" id="toReg" style="color:var(--accent)">没有账号？注册</a>
+    </p>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+const $ = id => document.getElementById(id);
+const esc = s => String(s ?? "").replace(/[&<>"']/g, c => ({ "&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;" }[c]));
+const fmtDate = ms => ms ? new Date(ms).toLocaleString("zh-CN", { month:"2-digit", day:"2-digit", hour:"2-digit", minute:"2-digit" }) : "—";
+
+let ME = null, REG = false, CFG = {};
+let toastTimer;
+function toast(m){
+  const t = $("toast"); t.textContent = m; t.classList.add("on");
+  clearTimeout(toastTimer); toastTimer = setTimeout(() => t.classList.remove("on"), 2200);
+}
+
+async function api(path, opt = {}){
+  let r;
+  try {
+    r = await fetch(path, { cache:"no-store", credentials:"same-origin", ...opt });
+  } catch(e){
+    throw Object.assign(new Error("连不上账号服务，请确认中央服务还在运行"), { status: 0 });
+  }
+  let j = {}; try { j = await r.json(); } catch(e){}
+  if (!r.ok) throw Object.assign(new Error(j.error || ("HTTP " + r.status)), { status: r.status });
+  return j;
+}
+const postJson = (p, b) => api(p, { method:"POST", headers:{ "Content-Type":"application/json" }, body: JSON.stringify(b || {}) });
+
+$("btnTheme").addEventListener("click", () => {
+  const next = document.documentElement.dataset.theme === "dark" ? "light" : "dark";
+  document.documentElement.dataset.theme = next;
+  try { localStorage.setItem("wb_theme", next); } catch(e){}
+});
+
+$("toReg").addEventListener("click", e => {
+  e.preventDefault();
+  REG = !REG; setMode();
+});
+
+function setMode(){
+  $("gPass2Wrap").hidden = !REG;
+  $("gGo").textContent = REG ? "注册并进入" : "登录";
+  $("toReg").textContent = REG ? "已有账号？登录" : "没有账号？注册";
+  $("gErr").textContent = "";
+}
+
+$("gGo").addEventListener("click", async () => {
+  const username = $("gUser").value.trim();
+  const password = $("gPass").value;
+  if (!username){ $("gErr").textContent = "请填写账号"; return; }
+  if (!password){ $("gErr").textContent = "请填写密码"; return; }
+  if (REG && password !== $("gPass2").value){ $("gErr").textContent = "两次输入的密码不一致"; return; }
+  const btn = $("gGo"); btn.disabled = true;
+  try {
+    const j = REG
+      ? await postJson("/api/auth/register", { username, password })
+      : await postJson("/api/auth/login", { username, password });
+    ME = j.user;
+    await boot();
+  } catch(e){
+    $("gErr").textContent = e.message;
+  } finally { btn.disabled = false; }
+});
+$("gPass").addEventListener("keydown", e => { if (e.key === "Enter") $("gGo").click(); });
+
+$("btnOut").addEventListener("click", async () => {
+  try { await postJson("/api/auth/logout"); } catch(e){}
+  ME = null;
+  $("gate").hidden = false;
+  $("main").hidden = true;
+  $("btnOut").hidden = true;
+  $("whoami").textContent = "未登录";
+});
+
+/* ---------- 令牌 ---------- */
+$("tkCreate").addEventListener("click", async () => {
+  const btn = $("tkCreate"); btn.disabled = true;
+  try {
+    const j = await postJson("/api/tokens", { name: $("tkName").value.trim() || "WorkBuddy" });
+    $("tkPlain").textContent = j.token;
+    $("tkNew").hidden = false;
+    await renderTokens();
+    toast("令牌已生成");
+  } catch(e){ toast(e.message); }
+  finally { btn.disabled = false; }
+});
+
+$("tkHide").addEventListener("click", () => { $("tkNew").hidden = true; $("tkPlain").textContent = ""; });
+
+$("tkCopy").addEventListener("click", async () => {
+  const t = $("tkPlain").textContent;
+  try { await navigator.clipboard.writeText(t); toast("已复制"); }
+  catch(e){ toast("请手动选中复制"); }
+});
+
+async function renderTokens(){
+  try {
+    const { tokens } = await api("/api/tokens");
+    if (!tokens.length){
+      $("tkList").innerHTML = `<div class="tk"><div class="grow"><b>还没有令牌</b><small>生成后填到员工电脑的 MCP 配置里</small></div></div>`;
+      return;
+    }
+    $("tkList").innerHTML = tokens.map(t => {
+      const st = t.revoked_at ? ["off","已撤销"] : (t.expires_at < Date.now() ? ["off","已过期"] : ["on","有效"]);
+      return `<div class="tk">
+        <div class="grow">
+          <b>${esc(t.name)} <span class="badge ${st[0]}">${st[1]}</span></b>
+          <small>${esc(t.prefix)}… · 建于 ${fmtDate(t.created_at)} · 到期 ${fmtDate(t.expires_at)}${t.last_used_at ? " · 最近 " + fmtDate(t.last_used_at) : ""}</small>
+        </div>
+        ${st[0] === "on" ? `<button class="btn sm ghost" data-revoke="${t.id}">撤销</button>` : ""}
+      </div>`;
+    }).join("");
+    $("tkList").querySelectorAll("[data-revoke]").forEach(b => b.addEventListener("click", async () => {
+      if (!confirm("撤销后，用这个令牌的电脑/工具会立即失效。确定？")) return;
+      try { await api("/api/tokens/" + b.dataset.revoke, { method:"DELETE" }); toast("已撤销"); renderTokens(); }
+      catch(e){ toast(e.message); }
+    }));
+  } catch(e){
+    $("tkList").innerHTML = `<div class="tk"><div class="grow"><small style="color:var(--err)">${esc(e.message)}</small></div></div>`;
+  }
+}
+
+/* ---------- 账号管理 ---------- */
+$("adRefresh").addEventListener("click", openAdmin);
+
+/** 自助注册开关。员工注册完点一下关掉，外部人就建不了号 */
+function renderRegSwitch(open){
+  $("regState").textContent = open ? "员工可自己注册账号" : "自主注册已关闭";
+  $("regToggle").textContent = open ? "关闭注册" : "开放注册";
+  $("regToggle").dataset.open = open ? "1" : "0";
+}
+
+$("regToggle").addEventListener("click", async () => {
+  const open = $("regToggle").dataset.open !== "1";
+  if (!open && !confirm("关闭后员工无法自己注册，只能由你在服务器上建号。确定？")) return;
+  try {
+    const j = await api("/api/admin/register", {
+      method: "POST",
+      headers: { "content-type": "application/json" },
+      body: JSON.stringify({ open })
+    });
+    renderRegSwitch(j.registerOpen);
+    toast(j.registerOpen ? "已开放自助注册" : "已关闭自助注册");
+  } catch(e){ toast(e.message); }
+});
+
+async function openAdmin(){
+  $("adBody").innerHTML = `<tr><td colspan="6" style="color:var(--text-3)">加载中…</td></tr>`;
+  try {
+    const [u, s] = await Promise.all([api("/api/admin/users"), api("/api/admin/stats")]);
+    // 中央不存作品，「条」只能数员工电脑回传的数字；单机版则直接是自己库里的
+    const worked = u.users.reduce((a, x) => a + Math.max(x.jobs || 0, x.rep_jobs || 0), 0);
+    $("adSub").innerHTML = `${u.users.length} 个账号 · ${worked} 条作品 · ${s.tokens} 个有效令牌`
+      + (s.machines ? ` · ${s.machines} 台电脑上报` : "");
+    renderRegSwitch(s.registerOpen);
+
+    $("adBody").innerHTML = u.users.map(x => {
+      const jobs = Math.max(x.jobs || 0, x.rep_jobs || 0);
+      // 回传来的数字才有「哪台机器、什么时候报的」，鼠标停上去能看见来源
+      const tip = x.rep_at
+        ? `本机回传 · ${x.machines} 台电脑 · 最后 ${fmtDate(x.rep_at)}`
+        : "还没有回传数据";
+      return `
+      <tr>
+        <td>${esc(x.username)}${x.id === ME.id ? ' <span class="badge">我</span>' : ""}</td>
+        <td title="${esc(tip)}">${jobs || "—"}</td>
+        <td>${x.tokens}</td>
+        <td>${fmtDate(x.last_login)}</td>
+        <td><div class="acts">
+          <button class="btn sm ghost" data-act="${x.disabled ? "enable" : "disable"}" data-id="${x.id}">${x.disabled ? "启用" : "停用"}</button>
+          <button class="btn sm ghost" data-act="password" data-id="${x.id}">重置密码</button>
+          ${x.id === ME.id ? "" : `<button class="btn sm ghost" data-act="delete" data-id="${x.id}" data-name="${esc(x.username)}" style="color:var(--err)">删除</button>`}
+        </div></td>
+      </tr>`;
+    }).join("");
+    $("adBody").querySelectorAll("[data-act]").forEach(b => b.addEventListener("click", async () => {
+      const act = b.dataset.act;
+      if (act === "password" && !confirm("重置后该员工会被强制下线，确定？")) return;
+      if (act === "disable" && !confirm("停用后该员工无法在任何电脑登录，确定？")) return;
+      if (act === "delete"){
+        // 删除是真删，连令牌一起没，且不能撤销 —— 说清楚再动手
+        if (!confirm(`删除账号「${b.dataset.name}」？\n\n这个账号和它名下的令牌会一起消失，不能撤销。\n（员工电脑上已经做好的成片不会被删，只是他再也登不进来。）`)) return;
+        try {
+          await api(`/api/admin/users/${b.dataset.id}`, { method: "DELETE" });
+          toast("已删除");
+          openAdmin();
+        } catch(e){ toast(e.message); }
+        return;
+      }
+      try {
+        const j = await api(`/api/admin/users/${b.dataset.id}/${act}`, { method:"POST" });
+        if (act === "password") alert(`已重置 ${j.username} 的密码：\n\n${j.password}\n\n请立即告知本人。`);
+        else toast(act === "disable" ? "已停用" : "已启用");
+        openAdmin();
+      } catch(e){ toast(e.message); }
+    }));
+  } catch(e){
+    $("adBody").innerHTML = `<tr><td colspan="6" style="color:var(--err)">${esc(e.message)}</td></tr>`;
+  }
+}
+
+/* ---------- 启动 ---------- */
+async function boot(){
+  $("gate").hidden = true;
+  $("main").hidden = false;
+  $("btnOut").hidden = false;
+  $("whoami").textContent = ME.username;
+  await renderTokens();
+  $("adCard").hidden = false;
+  await openAdmin();
+}
+
+(async function init(){
+  // 直接双击文件打开时浏览器会拦掉所有接口，必须直说，否则就是「点了没反应」
+  if (location.protocol === "file:"){
+    $("gate").hidden = false;
+    $("gGo").disabled = true;
+    $("gErr").textContent = "页面是直接双击文件打开的，浏览器不允许访问服务。请打开 http://服务器地址/admin 登录。";
+    return;
+  }
+  CFG = await fetch("/api/auth/config").then(r => r.json()).catch(() => ({}));
+  if (CFG.firstUser) $("gateSub").textContent = "首个注册的账号将成为管理员";
+  if (CFG.canRegisterHere === false){
+    $("toReg").hidden = true;
+    $("gateSub").textContent = "请使用公司统一账号登录";
+  }
+  try {
+    const j = await api("/api/auth/me");
+    ME = j.user;
+    await boot();
+  } catch(e){
+    $("gate").hidden = false;
+  }
+})();
+</script>
+</body>
+</html>

@@ -1,0 +1,6 @@
+{
+  "_说明": "把本文件复制到 %USERPROFILE%\\.workbuddy\\voices\\.cloud-key.json 后，把 VOLC_API_KEY 换成火山新版控制台的 X-Api-Key。新版控制台只需要这一项；VOLC_APPID + VOLC_TOKEN 是旧版鉴权才用。此文件绝不入库、绝不外发，留空时网页自动回落免费系统音色。",
+  "VOLC_API_KEY": "",
+  "VOLC_APPID": "",
+  "VOLC_TOKEN": ""
+}
