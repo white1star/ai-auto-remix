@@ -15,6 +15,12 @@
 *.json text eol=lf
 *.ass  text eol=lf
 
+# 证书 / 无扩展名的包元数据，别让 Git 动它们的换行符
+*.pem  -text
+INSTALLER -text
+METADATA  -text
+WHEEL     -text
+
 *.exe  binary
 *.dll  binary
 *.pyd  binary
