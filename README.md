@@ -1,5 +1,7 @@
 # AI 自动混剪
 
+仓库：https://github.com/white1star/ai-auto-remix ｜ 完整包：https://github.com/white1star/ai-auto-remix/releases/tag/v1.0.0
+
 把「一行文案 = 一句话 = 一条字幕 = 一条配音」跑成一条 1080×1920 竖版成片：分镜、字幕特效、点睛音效、BGM 参考视频扒伴奏、封面与字幕导出，一个网页里全部做完。账号、素材、成片都在自己电脑上，不需要 WorkBuddy，不需要贴提示词。
 
 运行环境：Windows 10/11 64 位。服务端是随包 Node.js，前端是原生 HTML/CSS/JS，没有构建步骤。
@@ -112,23 +114,24 @@ GitHub 普通仓库单文件硬上限 100 MB，实测这两个 ffmpeg 可执行�
 
 ---
 
-## 发布到 GitHub
+## GitHub 仓库与 Release
 
-本目录已 `git init` 并做了首次提交，只需接上远端：
+| 项 | 地址 |
+|---|---|
+| 源码仓库 | https://github.com/white1star/ai-auto-remix |
+| 最新完整包 | https://github.com/white1star/ai-auto-remix/releases/tag/v1.0.0 |
+| Release 资产 | `AI-Auto-Remix-v1.0.0-完整包.zip`（解压即用） |
 
-```bash
-git remote add origin https://github.com/<你的用户名>/<仓库名>.git
-git branch -M main
-git push -u origin main
-```
-
-完整 ZIP 作为 Release 资产上传（网页端直接拖进 Release 附件也行）：
+源码在 `main` 分支。日常维护：
 
 ```bash
-gh release create v1.0.0 "../AI-Auto-Remix-v1.0.0-完整包.zip" \
-  --title "v1.0.0 解压即用完整包" \
-  --notes "含 node / ffmpeg / ffprobe / edge-tts，解压后双击 启动.bat"
+git remote -v                              # 应指向 white1star/ai-auto-remix
+git add -A && git commit -m "..." && git push
 ```
+
+换新版完整包：在 Release 页面删掉旧 ZIP、重新上传同名文件即可（网页直接拖进去也行）。
+源码仓库里**不要**放 `runtime/node.exe`、`runtime/ffmpeg.exe`、`runtime/ffprobe.exe`，
+它们超过 GitHub 普通仓库 100 MB 单文件上限，只能走 Release 资产。
 
 推送前请再确认一次：仓库里没有 `配置.json`、没有 `.cloud-key.json`、没有 `data/` 目录、没有真实 Key。
 
