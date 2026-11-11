@@ -88,7 +88,7 @@ data/media/<你的账号>/ref 与 data/cache/refbgm 下，删掉只是下次重�
 
 九、从 GitHub 拿这个包 / 升级
 
-1. 想开箱即用：去 GitHub 仓库的 Releases 下载「AI-Auto-Remix-v1.0.0-完整包.zip」，
+1. 想开箱即用：去 GitHub 仓库的 Releases 下载「AI-Auto-Remix-v1.0.0-Windows-Full.zip」，
    解压到本地磁盘（不要直接在 ZIP 里双击），双击「启动.bat」。ZIP 里已带
    node、ffmpeg、ffprobe、edge-tts，不用再装运行时；云端音色和系统音色仍需要联网。
 2. 想拿源码 / 自己改：git clone 仓库后，双击「安装运行时.bat」，它会下载

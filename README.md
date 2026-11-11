@@ -21,7 +21,7 @@
 
 ## 快速开始（Release ZIP）
 
-1. 下载 `AI-Auto-Remix-v1.0.0-完整包.zip`，**解压到本地磁盘**（不要直接在 ZIP 里双击）。
+1. 下载 `AI-Auto-Remix-v1.0.0-Windows-Full.zip`，**解压到本地磁盘**（不要直接在 ZIP 里双击）。
 2. 双击 `启动.bat`。首次会自动检测运行时，然后打开 `http://127.0.0.1:8765`。黑色窗口要一直开着，关掉就等于退出服务。
 3. 网页上注册自己的账号，之后历史记录跟着这个账号走。
 4. 双击 `体检.bat` 可只做环境自检、不启动服务。
@@ -120,7 +120,7 @@ GitHub 普通仓库单文件硬上限 100 MB，实测这两个 ffmpeg 可执行�
 |---|---|
 | 源码仓库 | https://github.com/white1star/ai-auto-remix |
 | 最新完整包 | https://github.com/white1star/ai-auto-remix/releases/tag/v1.0.0 |
-| Release 资产 | `AI-Auto-Remix-v1.0.0-完整包.zip`（解压即用） |
+| Release 资产 | `AI-Auto-Remix-v1.0.0-Windows-Full.zip`（解压即用） |
 
 源码在 `main` 分支。日常维护：
 
